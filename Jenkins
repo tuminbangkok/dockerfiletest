@@ -1,3 +1,4 @@
+//######################## jenkins docker #########################
 pipeline {
     //flow dev > github > jenkins > dockerhub
     agent any
@@ -14,6 +15,7 @@ pipeline {
         stage('Build docker image') {
             steps {  
                 sh 'docker build -t tuminbangkok/nginxtest:$BUILD_NUMBER .'
+                printin ($BUILD_ID)
             }    
         }
 
@@ -29,3 +31,4 @@ pipeline {
         }              
     }    
 }
+
