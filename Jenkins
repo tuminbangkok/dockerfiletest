@@ -1,6 +1,7 @@
-//######################## jenkins docker #########################
+// select
+//1 ######################## test complete jenkins docker push images  #########################
 pipeline {
-    //flow dev > github > jenkins > dockerhub
+    //flow send images dev > github > jenkins > dockerhub
     agent any
     environment {
     DOCKERHUB_CREDENTIALS = credentials('valaxy-dockerhub')
@@ -15,7 +16,7 @@ pipeline {
         stage('Build docker image') {
             steps {  
                 sh 'docker build -t tuminbangkok/nginxtest:$BUILD_NUMBER .'
-                printin ($BUILD_ID)
+                
             }    
         }
 
@@ -29,6 +30,98 @@ pipeline {
                 sh 'docker push tuminbangkok/nginxtest:$BUILD_NUMBER'
             }
         }              
+    }    
+}
+
+// 2 ######################## test complete  running  jenkins #########################
+
+pipeline {
+    //flow send images dev > github > jenkins > dockerhub
+    agent any
+    environment {
+    DOCKERHUB_CREDENTIALS = credentials('valaxy-dockerhub')
+    }     
+    stages { 
+        stage('SCM Checkout') {
+            steps{
+            git 'https://github.com/tuminbangkok/dockerfiletest.git'
+            }
+        }
+    
+        stage('Build docker image') {
+            steps {  
+                sh 'docker build -t tuminbangkok/nginxtest:$BUILD_NUMBER .'
+                
+            }    
+        }
+        stage('Test run image') {
+            steps {  
+                
+                sh 'docker run -d --rm --name $JOB_NAME -p 80:80 tuminbangkok/nginxtest:$BUILD_NUMBER '
+                
+            }    
+        }        
+
+        stage('login to dockerhub') {
+            steps{
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+            }
+        }  
+        stage('push image') {
+            steps{
+                sh 'docker push tuminbangkok/nginxtest:$BUILD_NUMBER'
+            }
+        }              
+    }    
+}
+
+// 3 ######################## test  deploy to server staging #########################
+
+pipeline {
+    //flow send images dev > github > jenkins > dockerhub
+    agent any
+    environment {
+    DOCKERHUB_CREDENTIALS = credentials('valaxy-dockerhub')
+    }     
+    stages { 
+        stage('SCM Checkout') {
+            steps{
+            git 'https://github.com/tuminbangkok/dockerfiletest.git'
+            }
+        }
+    
+        stage('Build docker image') {
+            steps {  
+                sh 'docker build -t tuminbangkok/nginxtest:$BUILD_NUMBER .'
+                
+            }    
+        }
+        // stage('Test running image in jenkins') {
+        //     steps {  
+                
+        //         sh 'docker run -d --rm --name $JOB_NAME -p 80:80 tuminbangkok/nginxtest:$BUILD_NUMBER '
+                
+        //     }    
+        // }        
+
+        stage('login to dockerhub') {
+            steps{
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+            }
+        }  
+        stage('push image') {
+            steps{
+                sh 'docker push tuminbangkok/nginxtest:$BUILD_NUMBER'
+            }
+        } 
+
+        // stage('Test running image in server statging') {
+        //     steps {  
+                
+        //         sh 'docker run -d --rm --name $JOB_NAME -p 80:80 tuminbangkok/nginxtest:$BUILD_NUMBER '
+                
+        //     }    
+        // }                      
     }    
 }
 
