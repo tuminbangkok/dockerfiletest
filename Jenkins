@@ -84,18 +84,18 @@ pipeline {
     DOCKERHUB_CREDENTIALS = credentials('valaxy-dockerhub')
     }     
     stages { 
-        stage('SCM Checkout') {
-            steps{
-            git 'https://github.com/tuminbangkok/dockerfiletest.git'
-            }
-        }
+        // stage('SCM Checkout') {
+        //     steps{
+        //     git 'https://github.com/tuminbangkok/dockerfiletest.git'
+        //     }
+        // }
     
-        stage('Build docker image') {
-            steps {  
-                sh 'docker build -t tuminbangkok/nginxtest:$BUILD_NUMBER .'
+        // stage('Build docker image') {
+        //     steps {  
+        //         sh 'docker build -t tuminbangkok/nginxtest:$BUILD_NUMBER .'
                 
-            }    
-        }
+        //     }    
+        // }
         // stage('Test running image in jenkins') {
         //     steps {  
                 
@@ -104,26 +104,30 @@ pipeline {
         //     }    
         // }        
 
-        stage('login to dockerhub') {
-            steps{
-                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
-            }
-        }  
-        stage('push image') {
-            steps{
-                sh 'docker push tuminbangkok/nginxtest:$BUILD_NUMBER'
-            }
-        } 
-
-        stage('Test running image in server statging') {
-            steps {  
-              sshagent(['userhome']) {
-                def dockerrun = 'docker run -d --rm --name $JOB_NAME -p 80:80 tuminbangkok/nginxtest:last'
-                sh 'ssh -o StrictHostKeyChecking=no root@192.168.26.155'
-                //sh 'docker run -d --rm --name $JOB_NAME -p 80:80 tuminbangkok/nginxtest:$BUILD_NUMBER '
-              }             
+        // stage('login to dockerhub') {
+        //     steps{
+        //         sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+        //     }
+        // }  
+        // stage('push image') {
+        //     steps{
+        //         sh 'docker push tuminbangkok/nginxtest:$BUILD_NUMBER'
+        //     }
+        // } 
+// no complete Test login server statging
+        stage('Test login server statging') {
+            steps {
+               //def dockerrun = 'docker run -d --rm --name ttc -p 80:80 tuminbangkok/nginxtest:last'
+               sshagent(['userhome']) {
+                   sh 'ssh -o StrictHostKeyChecking=no root@192.168.26.155 ${dockerrun}'
+                   //sh 'docker run -d --rm --name $JOB_NAME -p 80:80 tuminbangkok/nginxtest:$BUILD_NUMBER '
+               }   
+               
+            }     
+                
+           //Test running image in server statging
                             
-            }    
+               
         }                      
     }    
 }
