@@ -1,5 +1,9 @@
 pipeline {
-    agent any 
+    //flow dev > github > jenkins > dockerhub
+    agent any
+    environment {
+    DOCKERHUB_CREDENTIALS = credentials('valaxy-dockerhub')
+    }     
     stages { 
         stage('SCM Checkout') {
             steps{
@@ -12,5 +16,16 @@ pipeline {
                 sh 'docker build -t tuminbangkok/nginxtest:$BUILD_NUMBER .'
             }    
         }
+
+        stage('login to dockerhub') {
+            steps{
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+            }
+        }  
+        stage('push image') {
+            steps{
+                sh 'docker push tuminbangkok/nginxtest:$BUILD_NUMBER'
+            }
+        }              
     }    
 }
