@@ -115,13 +115,16 @@ pipeline {
             }
         } 
 
-        // stage('Test running image in server statging') {
-        //     steps {  
-                
-        //         sh 'docker run -d --rm --name $JOB_NAME -p 80:80 tuminbangkok/nginxtest:$BUILD_NUMBER '
-                
-        //     }    
-        // }                      
+        stage('Test running image in server statging') {
+            steps {  
+              sshagent(['userhome']) {
+                def dockerrun = 'docker run -d --rm --name $JOB_NAME -p 80:80 tuminbangkok/nginxtest:last'
+                sh 'ssh -o StrictHostKeyChecking=no root@192.168.26.155'
+                //sh 'docker run -d --rm --name $JOB_NAME -p 80:80 tuminbangkok/nginxtest:$BUILD_NUMBER '
+              }             
+                            
+            }    
+        }                      
     }    
 }
 
