@@ -1,0 +1,16 @@
+pipeline {
+    agent any 
+    stages { 
+        stage('SCM Checkout') {
+            steps{
+            git 'https://github.com/tuminbangkok/dockerfiletest.git'
+            }
+        }
+    
+        stage('Build docker image') {
+            steps {  
+                sh 'docker build -t tuminbangkok/nginxtest:$BUILD_NUMBER .'
+            }    
+        }
+    }    
+}
